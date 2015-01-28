@@ -10,7 +10,8 @@ minimalist docs at https://godoc.org/github.com/mr51m0n/gorc
 
 ## an example:
 
-```var gorc0 gorc.Gorc
+```Go
+var gorc0 gorc.Gorc
 
 func main() {
 	for i := 0; i < 20; i++ {
@@ -28,4 +29,5 @@ func withgorc(i int) {
 	defer gorc0.Dec() // decrease counter when finished
 	fmt.Println("Nr.", i, " ", gorc0.Get(), "gorc goroutines running..")
 	time.Sleep(time.Duration(rand.Int31n(2000)) * time.Millisecond)
-}```
+}
+```
