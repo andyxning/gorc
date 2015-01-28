@@ -1,7 +1,7 @@
 # gorc
-goroutine counter
+set thresholds on number of running goroutines
 
-Can increase and decrease a counter when starting or stopping a goroutine. It can wait for a minimum or maximum number of goroutines running, thus allowing to set thresholds for the number othresholds for the number of goroutines running.
+Can increase and decrease a counter when starting or stopping a goroutine. It can wait for a minimum or maximum number of goroutines running, thus allowing to set thresholds for the number of gorc governed goroutines running at the same time.
 
 minimalist docs at https://godoc.org/github.com/mr51m0n/gorc
 
