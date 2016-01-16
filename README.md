@@ -17,7 +17,7 @@ func main() {
 	for i := 0; i < 20; i++ {
 		gorc0.Inc()
 		go withgorc(i)
-		gorc0.WaitLow(5) // no more then five goroutines governed by gorc0 are allowed at the same time
+		gorc0.WaitLow(5) // no more than five goroutines governed by gorc0 are allowed at the same time
 	}
 }
 
