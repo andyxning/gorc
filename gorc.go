@@ -1,79 +1,68 @@
 package gorc
 
 import (
-	"sync"
+	"sync/atomic"
 	"time"
 )
 
 type Gorc struct {
-	count      int
-	waitMillis time.Duration
-	sync.Mutex
+	count      int32
+	waitMillis int64
 }
 
 // Inc increases the counter by one.
 func (g *Gorc) Inc() {
-	g.Lock()
-	g.count++
-	g.Unlock()
+	atomic.AddInt32(&g.count, 1)
 }
 
 // IncBy increases the counter by b.
-func (g *Gorc) IncBy(b int) {
-	g.Lock()
-	g.count += b
-	g.Unlock()
+func (g *Gorc) IncBy(b int32) {
+	atomic.AddInt32(&g.count, b)
 }
 
 // Dec decreases the counter by one.
 func (g *Gorc) Dec() {
-	g.Lock()
-	g.count--
-	g.Unlock()
+	atomic.AddInt32(&g.count, -1)
 }
 
 // DecBy decreases the counter by b.
-func (g *Gorc) DecBy(b int) {
-	g.Lock()
-	g.count -= b
-	g.Unlock()
+func (g *Gorc) DecBy(b int32) {
+	atomic.AddInt32(&g.count, b)
 }
 
 // GetCount returns an integer holding the count.
-func (g *Gorc) Get() int {
-	return int(g.count)
+func (g *Gorc) Get() int32 {
+	return atomic.LoadInt32(&g.count)
 }
 
 // SetWaitMillis sets the time in milliseconds the Wait function
 // waits between checking the count against the given integer.
-func (g *Gorc) SetWaitMillis(w int) {
-	g.Lock()
-	g.waitMillis = time.Duration(w) * time.Millisecond
-	g.Unlock()
+func (g *Gorc) SetWaitMillis(w int64) {
+	atomic.StoreInt64(&g.waitMillis, w)
 }
 
 // Init initializes a new Gorc instance
 func (g *Gorc) Init() {
-	g.Lock()
-	g.count = 0
-	g.waitMillis = 100 * time.Millisecond
-	g.Unlock()
+	atomic.StoreInt32(&g.count, 0)
+	atomic.StoreInt64(&g.waitMillis, 100)
 }
 
 // WaitLow will return as soon as the Gorc counter falls below w.
 // e.g. wait until all but w goroutines are stopped.
-func (g *Gorc) WaitLow(w int) {
-	for g.count >= w {
-		time.Sleep(g.waitMillis)
+func (g *Gorc) WaitLow(w int32) {
+	for atomic.LoadInt32(&g.count) >= w {
+		dur := time.Duration(atomic.LoadInt64(&g.waitMillis))
+		time.Sleep(dur * time.Millisecond)
 	}
 	return
 }
 
 // WaitHigh will return as soon as the Gorc counter goes above w.
 // e.g. wait until at least w goroutines are started.
-func (g *Gorc) WaitHigh(w int) {
-	for g.count <= w {
-		time.Sleep(g.waitMillis)
+func (g *Gorc) WaitHigh(w int32) {
+	for atomic.LoadInt32(&g.count) <= w {
+		dur := time.Duration(atomic.LoadInt64(&g.waitMillis))
+		time.Sleep(dur * time.Millisecond)
 	}
 	return
 }
