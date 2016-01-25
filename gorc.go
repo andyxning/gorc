@@ -3,6 +3,12 @@ package gorc
 import (
 	"sync/atomic"
 	"time"
+	"errors"
+)
+
+var (
+	ErrDecreasedByNegative = errors.New("Decreased by a negative number")
+	ErrIncreasedByNegative = errors.New("Increased by a negative number")
 )
 
 type Gorc struct {
@@ -16,8 +22,14 @@ func (g *Gorc) Inc() {
 }
 
 // IncBy increases the counter by b.
-func (g *Gorc) IncBy(b int32) {
+// b must be a positive number, otherwise an ErrIncreasedByNegative will be
+// returned.
+func (g *Gorc) IncBy(b int32) error {
+	if b < 0 {
+		return ErrIncreasedByNegative
+	}
 	atomic.AddInt32(&g.count, b)
+	return nil
 }
 
 // Dec decreases the counter by one.
@@ -26,8 +38,16 @@ func (g *Gorc) Dec() {
 }
 
 // DecBy decreases the counter by b.
-func (g *Gorc) DecBy(b int32) {
+// b must be a positive number, otherwise an ErrDecreasedByNegative will be
+// returned.
+func (g *Gorc) DecBy(b int32) error {
+	if b < 0 {
+		return ErrDecreasedByNegative
+	} else {
+		b = int32(^uint32(b-1))
+	}
 	atomic.AddInt32(&g.count, b)
+	return nil
 }
 
 // GetCount returns an integer holding the count.
