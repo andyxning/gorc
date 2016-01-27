@@ -44,7 +44,7 @@ func (g *Gorc) DecBy(b int32) error {
 	if b < 0 {
 		return ErrDecreasedByNegative
 	} else {
-		b = int32(^uint32(b-1))
+		b = 0 - b
 	}
 	atomic.AddInt32(&g.count, b)
 	return nil
